@@ -1,34 +1,48 @@
-class AstraBarCodeInfo {
-  String schoolDcNo;
+class ClassInfo {
   String className;
-  int setsCount;
-  List<String> barCode;
+  List<Boxes> boxes;
+  List<Boxes> sets;
 
-  AstraBarCodeInfo({
-    required this.schoolDcNo,
+  ClassInfo({
     required this.className,
-    required this.setsCount,
-    required this.barCode,
+    required this.boxes,
+    required this.sets,
   });
-  factory AstraBarCodeInfo.parseResponse(dynamic data) {
-    dynamic info = data["BAR_CODE_INFO"];
-    List<String> barCodes = List<String>.empty(growable: true);
-    if (info != null) {
-      List<dynamic> temp = info;
-      barCodes = temp.map((e) => e.toString()).toList();
+  factory ClassInfo.parseResponse(dynamic data) {
+    List<dynamic>? boxInfo = data["BOXES"];
+    List<dynamic>? setsInfo = data["SETS"];
+    List<Boxes> lcBoxes = List<Boxes>.empty(growable: true);
+    List<Boxes> lcSets = List<Boxes>.empty(growable: true);
+    if (boxInfo != null) {
+      lcBoxes = boxInfo.map((e) => Boxes.parseResponse(e)).toList();
     }
-    return AstraBarCodeInfo(
-      schoolDcNo: data["SCHOOL_DC_NO"],
-      className: data["CLASS_NAME"],
-      setsCount: data["NO_OF_BOOK_SETS"],
-      barCode: barCodes,
-    );
+    if (setsInfo != null) {
+      lcSets = setsInfo.map((e) => Boxes.parseResponse(e)).toList();
+    }
+    return ClassInfo(className: data["CLASS_NAME"], boxes: lcBoxes, sets: lcSets);
   }
 
   Map<String, dynamic> getMap() => {
-        "SCHOOL_DC_NO": schoolDcNo,
         "CLASS_NAME": className,
-        "NO_OF_BOOK_SETS": setsCount,
-        "BAR_CODE_INFO": barCode,
+        "BOXES": boxes.map((e) => e.getMap()).toList(),
+        "SETS": sets.map((e) => e.getMap()).toList(),
+      };
+}
+
+class Boxes {
+  final String barCode;
+  final int boxNumber;
+  final double weight;
+
+  Boxes({required this.barCode, required this.boxNumber, required this.weight});
+
+  factory Boxes.parseResponse(dynamic data) {
+    return Boxes(barCode: data["BAR_CODE"], boxNumber: data["BOX_NUMBER"], weight: data["WEIGHT"]);
+  }
+
+  Map<String, dynamic> getMap() => {
+        "BAR_CODE": barCode,
+        "BOX_NUMBER": boxNumber,
+        "WEIGHT": weight,
       };
 }

@@ -1,11 +1,10 @@
 import 'dart:convert';
 
+import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
+import 'package:astra_bar_code_scanner/pages/ui/classes_list.dart';
 import 'package:astra_bar_code_scanner/pages/ui/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../modal/basic_info_modal.dart';
-import 'bar_code_list_view.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -30,8 +29,9 @@ class SplashScreen extends StatelessWidget {
     if (data == null) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
     } else {
-      AstraBarCodeInfo info = AstraBarCodeInfo.parseResponse(jsonDecode(data));
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BarCodesListview(barInfo: info)));
+      BarCodes astraBarCode = BarCodes.parseResponse(jsonDecode(data));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassesList(astraBarCode: astraBarCode)));
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BarCodesListview(barInfo: info)));
     }
 
     //  AstraBarCodeInfo data

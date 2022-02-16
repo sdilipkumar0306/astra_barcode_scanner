@@ -1,27 +1,27 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:astra_bar_code_scanner/pages/modal/basic_info_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../modal/bar_code_modal.dart';
 import 'home_page.dart';
 
 class BarCodesListview extends StatefulWidget {
-  final AstraBarCodeInfo barInfo;
-  const BarCodesListview({Key? key, required this.barInfo}) : super(key: key);
+  final BarCodes astraBarCode;
+  final int selectedIndex;
+  const BarCodesListview({Key? key, required this.astraBarCode, required this.selectedIndex}) : super(key: key);
 
   @override
   _BarCodesListviewState createState() => _BarCodesListviewState();
 }
 
 class _BarCodesListviewState extends State<BarCodesListview> {
-  late AstraBarCodeInfo barInfo;
+  late BarCodes barInfo;
+  TextEditingController barCodeController = TextEditingController();
   @override
   void initState() {
-    barInfo = widget.barInfo;
+    barInfo = widget.astraBarCode;
 
     super.initState();
   }
@@ -32,58 +32,112 @@ class _BarCodesListviewState extends State<BarCodesListview> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () async {
-              SharedPreferences pref = await SharedPreferences.getInstance();
-              pref.clear();
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              Navigator.pop(context);
             },
-            icon: const Icon(Icons.logout)),
-        actions: [
-          IconButton(
-              onPressed: barInfo.barCode.isEmpty
-                  ? null
-                  : () {
-                      createExcel();
-                    },
-              icon: const Icon(Icons.download))
-        ],
+            icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         centerTitle: true,
-        title: Text("${barInfo.schoolDcNo} - ${barInfo.className} - ${barInfo.setsCount}"),
+        title: Text("${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className}"),
       ),
-      body: ListView.builder(
-        itemCount: barInfo.barCode.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
-            child: ListTile(
-              minLeadingWidth: 10,
-              leading: Text("${(index + 1)}.", style: const TextStyle(fontSize: 20)),
-              title: Text(
-                barInfo.barCode.elementAt(index),
-                style: const TextStyle(fontSize: 18),
-              ),
-              trailing: IconButton(
-                  onPressed: () async {
-                    barInfo.barCode.removeAt(index);
-                    if (!mounted) return;
-                    setState(() {});
-                    SharedPreferences pref = await SharedPreferences.getInstance();
-                    pref.setString("ASTRA_BAR_INFO", jsonEncode(barInfo.getMap()));
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  )),
+      body: Stack(
+        children: [
+          ListView.builder(
+            itemCount: barInfo.classes.elementAt(widget.selectedIndex).boxes.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                child: ListTile(
+                  minLeadingWidth: 10,
+                  leading: Text("${(index + 1)}.", style: const TextStyle(fontSize: 20)),
+                  title: Text(
+                    barInfo.classes.elementAt(widget.selectedIndex).boxes.elementAt(index).barCode,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  trailing: IconButton(
+                      onPressed: () async {
+                        barInfo.classes.elementAt(widget.selectedIndex).boxes.removeAt(index);
+                        if (!mounted) return;
+                        setState(() {});
+                        SharedPreferences pref = await SharedPreferences.getInstance();
+                        pref.setString("ASTRA_BAR_INFO", jsonEncode(barInfo.getMap()));
+                      },
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      )),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 10,
+            right: 10,
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    heroTag: "ABC",
+                    child: const Icon(Icons.text_fields),
+                    onPressed: () async {
+                      getTextField();
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    heroTag: "DEF",
+                    child: const Icon(Icons.add),
+                    onPressed: () async {
+                      await scanBarcodeNormal();
+                    },
+                  ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          await scanBarcodeNormal();
-        },
+          )
+        ],
       ),
     );
+  }
+
+  Future<void> getTextField() async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Enter BarCode"),
+        content: SizedBox(
+          width: 120,
+          height: 50,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
+              controller: barCodeController,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text("No"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (barCodeController.text.trim().isNotEmpty) {
+                barInfo.classes.elementAt(widget.selectedIndex).boxes.add(Boxes(barCode: barCodeController.text, boxNumber: 0, weight: 0));
+                barCodeController.clear();
+                saveData();
+                Navigator.of(ctx).pop();
+              }
+            },
+            child: const Text("add"),
+          ),
+        ],
+      ),
+    );
+    setState(() {});
   }
 
   Future<void> scanBarcodeNormal() async {
@@ -94,65 +148,44 @@ class _BarCodesListviewState extends State<BarCodesListview> {
       barcodeScanRes = 'Failed to get platform version.';
     }
     if (!mounted) return;
-
-    if (barInfo.barCode.contains(barcodeScanRes)) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text("Alert"),
-          content: Text("$barcodeScanRes Already contains in list do you want to add again"),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-              child: const Text("No"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  barInfo.barCode.add(barcodeScanRes);
-                });
-                Navigator.of(ctx).pop();
-              },
-              child: const Text("add"),
-            ),
-          ],
-        ),
-      );
-    } else {
-      setState(() {
-        barInfo.barCode.add(barcodeScanRes);
-      });
+    if (barcodeScanRes != "-1") {
+      if (barInfo.classes.elementAt(widget.selectedIndex).boxes.map((e) => e.barCode).toList().contains(barcodeScanRes)) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Alert"),
+            content: Text("$barcodeScanRes Already contains in list do you want to add again"),
+            actions: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: const Text("No"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    barInfo.classes.elementAt(widget.selectedIndex).boxes.add(Boxes(barCode: barCodeController.text, boxNumber: 0, weight: 0));
+                  });
+                  Navigator.of(ctx).pop();
+                },
+                child: const Text("add"),
+              ),
+            ],
+          ),
+        );
+      } else {
+        setState(() {
+          barInfo.classes.elementAt(widget.selectedIndex).boxes.add(Boxes(barCode: barCodeController.text, boxNumber: 0, weight: 0));
+        });
+      }
     }
 
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setString("ASTRA_BAR_INFO", jsonEncode(barInfo.getMap()));
+    saveData();
   }
 
-  Future<void> createExcel() async {
-    String fileName =
-        "${widget.barInfo.schoolDcNo}_${widget.barInfo.className}_${widget.barInfo.setsCount}_${DateTime.now().minute}_${DateTime.now().second}.xlsx";
-
-    final Workbook workbook = Workbook();
-    final Worksheet sheet = workbook.worksheets[0];
-    for (var i = 0; i < barInfo.barCode.length; i++) {
-      sheet.getRangeByName('A${i + 1}').setText(barInfo.barCode.elementAt(i));
-    }
-    final List<int> bytes = workbook.saveAsStream();
-    workbook.dispose();
-
-    // final String path = (await getApplicationSupportDirectory()).path;
-
-    final File file = File("/storage/emulated/0/Download/$fileName");
-    bool isExist = await file.exists();
-    if (!isExist) {
-      await file.create();
-    }
-    await file.writeAsBytes(bytes, flush: true);
-    SnackBar snackBar = SnackBar(
-      content: Text("Downloaded as $fileName"),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  Future<void> saveData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("ASTRA_BAR_INFO", jsonEncode(barInfo.getMap()));
   }
 }
