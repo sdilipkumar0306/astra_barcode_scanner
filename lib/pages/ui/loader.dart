@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
+import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:astra_bar_code_scanner/pages/ui/classes_list.dart';
 import 'package:astra_bar_code_scanner/pages/ui/home_page.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,9 @@ class SplashScreen extends StatelessWidget {
   Future<void> getdata(BuildContext context) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     dynamic data = pref.getString("ASTRA_BAR_INFO");
+    StaticInfo.boxCount = pref.getInt("BOX_COUNT") ?? 1;
+    StaticInfo.setsCount = pref.getInt("SETS_COUNT") ?? 1;
+
     if (data == null) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
     } else {

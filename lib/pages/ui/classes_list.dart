@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
+import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:astra_bar_code_scanner/pages/ui/bar_code_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,9 +77,7 @@ class _ClassesListState extends State<ClassesList> {
                 splashRadius: 10,
                 onPressed: () async {
                   await Navigator.push(context, MaterialPageRoute(builder: (context) => BarCodesListview(astraBarCode: astraBarCode, selectedIndex: i)));
-                  SharedPreferences pref = await SharedPreferences.getInstance();
-                  dynamic data = pref.getString("ASTRA_BAR_INFO");
-                  astraBarCode = BarCodes.parseResponse(jsonDecode(data));
+                  astraBarCode = (await StaticInfo.getData())!;
                   setState(() {});
                 },
                 icon: const Icon(Icons.add),
@@ -96,8 +95,14 @@ class _ClassesListState extends State<ClassesList> {
       (subIndex) => Container(
         margin: const EdgeInsets.only(left: 30),
         child: ListTile(
-          title: Text(astraBarCode.classes.elementAt(index).boxes.elementAt(subIndex).barCode),
-          leading: Text("${subIndex + 1}"),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(astraBarCode.classes.elementAt(index).boxes.elementAt(subIndex).barCode),
+              Text("${astraBarCode.classes.elementAt(index).boxes.elementAt(subIndex).weight} Kg"),
+            ],
+          ),
+          leading: Text("B-${astraBarCode.classes.elementAt(index).boxes.elementAt(subIndex).boxNumber}"),
         ),
       ),
     );
@@ -106,8 +111,14 @@ class _ClassesListState extends State<ClassesList> {
       (subIndex) => Container(
         margin: const EdgeInsets.only(left: 30),
         child: ListTile(
-          title: Text(astraBarCode.classes.elementAt(index).sets.elementAt(subIndex).barCode),
-          leading: Text("${subIndex + 1}"),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(astraBarCode.classes.elementAt(index).sets.elementAt(subIndex).barCode),
+              Text("${astraBarCode.classes.elementAt(index).sets.elementAt(subIndex).weight} Kg"),
+            ],
+          ),
+          leading: Text("S-${astraBarCode.classes.elementAt(index).sets.elementAt(subIndex).boxNumber}"),
         ),
       ),
     ));
