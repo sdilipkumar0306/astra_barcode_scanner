@@ -35,7 +35,8 @@ class _BarCodesListviewState extends State<BarCodesListview> {
             },
             icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         centerTitle: true,
-        title: Text("${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className}"),
+        title:
+            Text("${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className} - ${barInfo.classes.elementAt(widget.selectedIndex).count}"),
       ),
       body: Stack(
         children: [
@@ -69,6 +70,7 @@ class _BarCodesListviewState extends State<BarCodesListview> {
                             ),
                             trailing: IconButton(
                                 onPressed: () async {
+                                  reArangeBoxOrder(barInfo.classes.elementAt(widget.selectedIndex).boxes.elementAt(index).boxNumber);
                                   barInfo.classes.elementAt(widget.selectedIndex).boxes.removeAt(index);
                                   if (!mounted) return;
                                   setState(() {});
@@ -105,7 +107,9 @@ class _BarCodesListviewState extends State<BarCodesListview> {
                             ),
                             trailing: IconButton(
                                 onPressed: () async {
+                                  reArangeSetsOrder(barInfo.classes.elementAt(widget.selectedIndex).sets.elementAt(index).boxNumber);
                                   barInfo.classes.elementAt(widget.selectedIndex).sets.removeAt(index);
+
                                   if (!mounted) return;
                                   setState(() {});
                                   StaticInfo.saveData(barInfo);
@@ -145,6 +149,28 @@ class _BarCodesListviewState extends State<BarCodesListview> {
         ],
       ),
     );
+  }
+
+  void reArangeBoxOrder(int removedCount) {
+    for (var i = 0; i < barInfo.classes.length; i++) {
+      for (var j = 0; j < barInfo.classes.elementAt(i).boxes.length; j++) {
+        if (barInfo.classes.elementAt(i).boxes.elementAt(j).boxNumber > removedCount) {
+          barInfo.classes.elementAt(i).boxes.elementAt(j).boxNumber -= 1;
+        }
+      }
+    }
+    StaticInfo.boxCount -= 1;
+  }
+
+  void reArangeSetsOrder(int removedCount) {
+    for (var i = 0; i < barInfo.classes.length; i++) {
+      for (var j = 0; j < barInfo.classes.elementAt(i).sets.length; j++) {
+        if (barInfo.classes.elementAt(i).sets.elementAt(j).boxNumber > removedCount) {
+          barInfo.classes.elementAt(i).sets.elementAt(j).boxNumber -= 1;
+        }
+      }
+    }
+    StaticInfo.setsCount -= 1;
   }
 
   Future<void> getTextField() async {

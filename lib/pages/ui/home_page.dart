@@ -24,15 +24,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          FocusManager.instance.primaryFocus?.unfocus();
-        },
-        child: Center(
+    return SafeArea(
+      child: Scaffold(
+        body: GestureDetector(
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
+              margin: EdgeInsets.only(top: 30),
               child: Container(
                 margin: const EdgeInsets.all(10),
                 width: 550,
@@ -61,8 +62,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: (selected == null || selected == -1) ? 250 : 520,
+                    Expanded(
+                      // height: (selected == null || selected == -1) ? 250 : 520,
                       child: ListView.builder(
                         key: Key('builder ${selected.toString()}'),
                         itemCount: classInfo.length,
@@ -138,21 +139,19 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(width: 10),
         Checkbox(
           value: classInfo.elementAt(mainIndex).elementAt(subindex)[0],
-          onChanged: (bool? value) {
-            setState(() {
-              classInfo[mainIndex][subindex][0] = value;
-            });
+          onChanged: (bool? value) async {
+            onCheckBoxClick(mainIndex, subindex);
           },
         ),
         const SizedBox(width: 10),
         InkWell(
           onTap: () {
-            setState(() {
-              classInfo[mainIndex][subindex][0] = !classInfo[mainIndex][subindex][0];
-            });
+            onCheckBoxClick(mainIndex, subindex);
           },
           child: Text(
-            (classInfo[mainIndex][subindex][1]),
+            (classInfo[mainIndex][subindex][2] != 0)
+                ? ("${classInfo[mainIndex][subindex][1]}   --   ${classInfo[mainIndex][subindex][2]}")
+                : (classInfo[mainIndex][subindex][1]),
             style: const TextStyle(fontSize: 17.0),
           ),
         ),
@@ -160,12 +159,69 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> onCheckBoxClick(int mainIndex, int subindex) async {
+    int count = 0;
+    TextEditingController countController = TextEditingController();
+    if (!classInfo[mainIndex][subindex][0] == true) {
+      await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              title: Text("Enter Count for ${classInfo[mainIndex][subindex][1]}"),
+              content: Container(
+                width: 500,
+                height: 250,
+                alignment: Alignment.center,
+                child: TextFormField(
+                  controller: countController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Count',
+                    hintText: 'Enter Count',
+                    errorText: schoolDcNoerror,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    count = 0;
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (countController.text.trim().isNotEmpty) {
+                      count = int.parse(countController.text);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text("Ok"),
+                ),
+              ],
+            );
+          });
+    }
+    if (count != 0) {
+      setState(() {
+        classInfo[mainIndex][subindex][0] = !classInfo[mainIndex][subindex][0];
+        classInfo[mainIndex][subindex][2] = count;
+      });
+    }
+  }
+
   void onNextClick() {
     List<ClassInfo> classes = List<ClassInfo>.empty(growable: true);
     for (var i in classInfo) {
       for (var j in i) {
         if (j[0]) {
-          classes.add(ClassInfo(className: j[1], boxes: List<Boxes>.empty(growable: true), sets: List<Boxes>.empty(growable: true)));
+          classes.add(ClassInfo(className: j[1], count: j[2], boxes: List<Boxes>.empty(growable: true), sets: List<Boxes>.empty(growable: true)));
         }
       }
     }
@@ -223,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[0].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text(a[1]),
+                                  label: Text("${a[1]} - ${a[2]}"),
                                 ),
                               ))
                         ]),
@@ -246,7 +302,7 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[1].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text(a[1]),
+                                  label: Text("${a[1]} - ${a[2]}"),
                                 ),
                               ))
                         ]),
@@ -269,7 +325,7 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[2].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text(a[1]),
+                                  label: Text("${a[1]} - ${a[2]}"),
                                 ),
                               ))
                         ]),

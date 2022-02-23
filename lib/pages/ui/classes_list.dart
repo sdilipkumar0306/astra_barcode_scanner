@@ -55,7 +55,13 @@ class _ClassesListState extends State<ClassesList> {
           return ExpansionTile(
             key: Key(i.toString()),
             initiallyExpanded: i == selected,
-            title: Text(astraBarCode.classes.elementAt(i).className),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(astraBarCode.classes.elementAt(i).className),
+                Text(astraBarCode.classes.elementAt(i).count.toString()),
+              ],
+            ),
             children: productExpandAbleListBuilder(i),
             onExpansionChanged: ((newState) {
               if (newState) {

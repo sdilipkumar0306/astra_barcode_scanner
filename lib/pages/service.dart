@@ -18,7 +18,7 @@ class BarCodeService {
 
     int initialColum = 1;
     for (var i = 0; i < barInfo.classes.length; i++) {
-      sheet.getRangeByIndex(7, initialColum).setText(barInfo.classes.elementAt(i).className);
+      sheet.getRangeByIndex(7, initialColum).setText("${barInfo.classes.elementAt(i).className} - ${barInfo.classes.elementAt(i).count}");
       final heading = sheet.getRangeByIndex(7, initialColum, 7, initialColum + 2);
       heading.merge();
       heading.cellStyle.hAlign = HAlignType.center;
@@ -63,7 +63,7 @@ class BarCodeService {
     sheet.getRangeByIndex(3, 3).setNumber(totalBoxes.toDouble());
     sheet.getRangeByIndex(3, 1, 3, 2).merge();
     sheet.getRangeByIndex(3, 3, 3, 4).merge();
-    
+
     // setting total weight
     sheet.getRangeByIndex(4, 1).setText("Total Weight (Kg)");
     sheet.getRangeByIndex(4, 3).setNumber(totalWeight);
