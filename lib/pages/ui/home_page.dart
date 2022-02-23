@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
 import 'package:astra_bar_code_scanner/pages/modal/basic_info_modal.dart';
 import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:astra_bar_code_scanner/pages/ui/classes_list.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -28,91 +25,96 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              width: 550,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      "Astra Qr Scanner",
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
+      body: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                width: 550,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        "Astra Qr Scanner",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: TextFormField(
-                      controller: schoolDcNo,
-                      decoration: InputDecoration(
-                        labelText: 'DC No',
-                        hintText: 'Enter DC No',
-                        errorText: schoolDcNoerror,
-                        border: const OutlineInputBorder(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: TextFormField(
+                        controller: schoolDcNo,
+                        decoration: InputDecoration(
+                          labelText: 'DC No',
+                          hintText: 'Enter DC No',
+                          errorText: schoolDcNoerror,
+                          border: const OutlineInputBorder(),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: (selected == null || selected == -1) ? 250 : 520,
-                    child: ListView.builder(
-                      key: Key('builder ${selected.toString()}'),
-                      itemCount: classInfo.length,
-                      itemBuilder: (context, i) {
-                        return Container(
-                          decoration: BoxDecoration(border: Border.all(color: Theme.of(context).primaryColor)),
-                          margin: const EdgeInsets.all(8),
-                          child: ExpansionTile(
-                            key: Key(i.toString()),
-                            initiallyExpanded: i == selected,
-                            title: Text(i == 0
-                                ? "Nur - Grade 5"
-                                : i == 1
-                                    ? "CS"
-                                    : "GK"),
-                            children: productExpandAbleListBuilder(i),
-                            onExpansionChanged: ((newState) {
-                              if (newState) {
-                                setState(() {
-                                  selected = i;
-                                });
-                              } else {
-                                setState(() {
-                                  selected = -1;
-                                });
-                              }
-                            }),
-                          ),
-                        );
-                      },
+                    SizedBox(
+                      height: (selected == null || selected == -1) ? 250 : 520,
+                      child: ListView.builder(
+                        key: Key('builder ${selected.toString()}'),
+                        itemCount: classInfo.length,
+                        itemBuilder: (context, i) {
+                          return Container(
+                            decoration: BoxDecoration(border: Border.all(color: Theme.of(context).primaryColor)),
+                            margin: const EdgeInsets.all(8),
+                            child: ExpansionTile(
+                              key: Key(i.toString()),
+                              initiallyExpanded: i == selected,
+                              title: Text(i == 0
+                                  ? "Nur - Grade 5"
+                                  : i == 1
+                                      ? "CS"
+                                      : "GK"),
+                              children: productExpandAbleListBuilder(i),
+                              onExpansionChanged: ((newState) {
+                                if (newState) {
+                                  setState(() {
+                                    selected = i;
+                                  });
+                                } else {
+                                  setState(() {
+                                    selected = -1;
+                                  });
+                                }
+                              }),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  Container(
-                    width: 80,
-                    height: 40,
-                    margin: const EdgeInsets.all(15),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (schoolDcNo.text.trim().isEmpty) {
-                          schoolDcNoerror = "Enter School DC No";
-                        } else {
-                          schoolDcNoerror = null;
-                          onNextClick();
-                        }
-                        if (!mounted) return;
-                        setState(() {});
-                      },
-                      child: const Text("Next"),
-                    ),
-                  )
-                ],
+                    Container(
+                      width: 80,
+                      height: 40,
+                      margin: const EdgeInsets.all(15),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (schoolDcNo.text.trim().isEmpty) {
+                            schoolDcNoerror = "Enter School DC No";
+                          } else {
+                            schoolDcNoerror = null;
+                            onNextClick();
+                          }
+                          if (!mounted) return;
+                          setState(() {});
+                        },
+                        child: const Text("Next"),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -288,8 +290,11 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              SharedPreferences pref = await SharedPreferences.getInstance();
-              pref.setString("ASTRA_BAR_INFO", jsonEncode(astraBarCode.getMap()));
+              // SharedPreferences pref = await SharedPreferences.getInstance();
+              StaticInfo.boxCount = 1;
+              StaticInfo.setsCount = 1;
+              StaticInfo.saveData(astraBarCode);
+              // pref.setString("ASTRA_BAR_INFO", jsonEncode(astraBarCode.getMap()));
               // ClassesList
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassesList(astraBarCode: astraBarCode)));
             },

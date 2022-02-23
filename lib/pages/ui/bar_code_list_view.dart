@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:astra_bar_code_scanner/pages/modal/basic_info_modal.dart';
 import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../modal/bar_code_modal.dart';
 
 class BarCodesListview extends StatefulWidget {
