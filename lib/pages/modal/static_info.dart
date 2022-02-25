@@ -25,36 +25,43 @@ class StaticInfo {
     return null;
   }
 
+  static List<String> versionList = ["V7", "V8", "V9", "V0"];
+  static List<String> aTcB = ["AT", "CB"];
+
   static List<List<dynamic>> classesData() {
     List<dynamic> section1 = [
-      [false, "Nursery",0],
-      [false, "L.K.G",0],
-      [false, "U.K.G",0],
-      [false, "Grade 1",0],
-      [false, "Grade 2",0],
-      [false, "Grade 3",0],
-      [false, "Grade 4",0],
-      [false, "Grade 5",0],
+      [false, "Nursery", 0, "CB"],
+      [false, "L.K.G", 0, ""],
+      [false, "U.K.G", 0, ""],
+      [false, "Grade 1", 0, ""],
+      [false, "Grade 2", 0, ""],
+      [false, "Grade 3", 0, ""],
+      [false, "Grade 4", 0, ""],
+      [false, "Grade 5", 0, ""],
     ];
     List<dynamic> section2 = [
-      [false, "CS 1",0],
-      [false, "CS 2",0],
-      [false, "CS 3",0],
-      [false, "CS 4",0],
-      [false, "CS 5",0],
-      [false, "CS 6",0],
-      [false, "CS 7",0],
-      [false, "CS 8",0],
-      [false, "CS 9",0],
-      [false, "CS 10",0],
+      [false, "CS 1", 0, ""],
+      [false, "CS 2", 0, ""],
+      [false, "CS 3", 0, ""],
+      [false, "CS 4", 0, ""],
+      [false, "CS 5", 0, ""],
+      [false, "CS 6", 0, ""],
+      [false, "CS 7", 0, ""],
+      [false, "CS 8", 0, ""],
+      [false, "CS 9", 0, ""],
+      [false, "CS 10", 0, ""],
     ];
     List<dynamic> section3 = [
-      [false, "GK 1",0],
-      [false, "GK 2",0],
-      [false, "GK 3",0],
-      [false, "GK 4",0],
-      [false, "GK 5",0],
+      [false, "GK 1", 0, ""],
+      [false, "GK 2", 0, ""],
+      [false, "GK 3", 0, ""],
+      [false, "GK 4", 0, ""],
+      [false, "GK 5", 0, ""],
     ];
-    return [section1, section2, section3];
+    List<dynamic> section4 = [
+      [false, "AT", 0, ""],
+      [false, "CB", 0, ""],
+    ];
+    return [section1, section2, section3, section4];
   }
 }

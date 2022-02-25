@@ -59,6 +59,7 @@ class _ClassesListState extends State<ClassesList> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(astraBarCode.classes.elementAt(i).className),
+                Text(astraBarCode.classes.elementAt(i).version),
                 Text(astraBarCode.classes.elementAt(i).count.toString()),
               ],
             ),

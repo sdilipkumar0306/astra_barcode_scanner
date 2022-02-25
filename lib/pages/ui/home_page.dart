@@ -78,7 +78,9 @@ class _HomePageState extends State<HomePage> {
                                   ? "Nur - Grade 5"
                                   : i == 1
                                       ? "CS"
-                                      : "GK"),
+                                      : i == 2
+                                          ? "GK"
+                                          : "PC's"),
                               children: productExpandAbleListBuilder(i),
                               onExpansionChanged: ((newState) {
                                 if (newState) {
@@ -161,6 +163,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onCheckBoxClick(int mainIndex, int subindex) async {
     int count = 0;
+    int? versionIndex;
+    int? aTcBIndex;
     TextEditingController countController = TextEditingController();
     if (!classInfo[mainIndex][subindex][0] == true) {
       await showDialog(
@@ -171,38 +175,137 @@ class _HomePageState extends State<HomePage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              title: Text("Enter Count for ${classInfo[mainIndex][subindex][1]}"),
-              content: Container(
-                width: 500,
-                height: 250,
-                alignment: Alignment.center,
-                child: TextFormField(
-                  controller: countController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Count',
-                    hintText: 'Enter Count',
-                    errorText: schoolDcNoerror,
-                    border: const OutlineInputBorder(),
+              title: Center(child: Text("Enter Count for ${classInfo[mainIndex][subindex][1]}")),
+              content: StatefulBuilder(builder: (BuildContext context, setState) {
+                return Container(
+                  width: 500,
+                  height: 300,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 450,
+                        height: 80,
+                        child: TextFormField(
+                          controller: countController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Count',
+                            hintText: 'Enter Count',
+                            errorText: schoolDcNoerror,
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Versions :"),
+                            SizedBox(
+                              width: 500,
+                              height: 60,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: List.generate(
+                                    StaticInfo.versionList.length,
+                                    (index) => Container(
+                                        margin: const EdgeInsets.only(left: 6),
+                                        width: 90,
+                                        height: 40,
+                                        child: Row(
+                                          children: [
+                                            Radio(
+                                              value: 1,
+                                              groupValue: versionIndex == index ? 1 : -1,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  versionIndex = index;
+                                                });
+                                              },
+                                              activeColor: Colors.green,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.all(4.0),
+                                              child: Text(StaticInfo.versionList.elementAt(index)),
+                                            )
+                                          ],
+                                        ))),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (mainIndex == 0 && (versionIndex == 2 || versionIndex == 3) && subindex != 0)
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Volumes :"),
+                              SizedBox(
+                                width: 500,
+                                height: 60,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: List.generate(
+                                      StaticInfo.aTcB.length,
+                                      (index) => Container(
+                                          margin: const EdgeInsets.only(left: 6),
+                                          width: 120,
+                                          height: 40,
+                                          child: Row(
+                                            children: [
+                                              Radio(
+                                                value: 1,
+                                                groupValue: aTcBIndex == index ? 1 : -1,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    aTcBIndex = index;
+                                                  });
+                                                },
+                                                activeColor: Colors.green,
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(4.0),
+                                                child: Text(StaticInfo.aTcB.elementAt(index)),
+                                              )
+                                            ],
+                                          ))),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton(
+                    onPressed: () {
+                      count = 0;
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Cancel"),
                   ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    count = 0;
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (countController.text.trim().isNotEmpty) {
-                      count = int.parse(countController.text);
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text("Ok"),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (countController.text.trim().isNotEmpty && versionIndex != null) {
+                        count = int.parse(countController.text);
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: const Text("Ok"),
+                  ),
                 ),
               ],
             );
@@ -212,6 +315,13 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         classInfo[mainIndex][subindex][0] = !classInfo[mainIndex][subindex][0];
         classInfo[mainIndex][subindex][2] = count;
+        if (mainIndex == 0 && subindex == 0) {
+          classInfo[mainIndex][subindex][3] = "${StaticInfo.versionList.elementAt(versionIndex!)} - C ";
+        } else {
+          classInfo[mainIndex][subindex][3] =
+              "${StaticInfo.versionList.elementAt(versionIndex!)} ${aTcBIndex != null ? '- ${StaticInfo.aTcB.elementAt(aTcBIndex!).substring(0, 1)}' : ''} ";
+        }
+        classInfo[mainIndex][subindex][3] = classInfo[mainIndex][subindex][3].toString().trim();
       });
     }
   }
@@ -221,7 +331,8 @@ class _HomePageState extends State<HomePage> {
     for (var i in classInfo) {
       for (var j in i) {
         if (j[0]) {
-          classes.add(ClassInfo(className: j[1], count: j[2], boxes: List<Boxes>.empty(growable: true), sets: List<Boxes>.empty(growable: true)));
+          classes
+              .add(ClassInfo(className: j[1], count: j[2], version: j[3], boxes: List<Boxes>.empty(growable: true), sets: List<Boxes>.empty(growable: true)));
         }
       }
     }
@@ -244,7 +355,7 @@ class _HomePageState extends State<HomePage> {
         content: Container(
           decoration: BoxDecoration(border: Border.all(color: Colors.black)),
           width: 400,
-          height: 350,
+          height: 450,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -279,7 +390,7 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[0].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text("${a[1]} - ${a[2]}"),
+                                  label: Text("${a[1]} - ${a[3]} - ${a[2]}"),
                                 ),
                               ))
                         ]),
@@ -302,7 +413,7 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[1].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text("${a[1]} - ${a[2]}"),
+                                  label: Text("${a[1]} - ${a[3]} - ${a[2]}"),
                                 ),
                               ))
                         ]),
@@ -325,7 +436,30 @@ class _HomePageState extends State<HomePage> {
                           ...classInfo[2].where((e) => e[0]).toList().map((a) => Padding(
                                 padding: const EdgeInsets.all(2.0),
                                 child: Chip(
-                                  label: Text("${a[1]} - ${a[2]}"),
+                                  label: Text("${a[1]} - ${a[3]} - ${a[2]}"),
+                                ),
+                              ))
+                        ]),
+                      )
+                    ],
+                  ),
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "PC's  : ",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Expanded(
+                        child: Wrap(children: [
+                          ...classInfo[3].where((e) => e[0]).toList().map((a) => Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Chip(
+                                  label: Text("${a[1]} - ${a[3]} - ${a[2]}"),
                                 ),
                               ))
                         ]),

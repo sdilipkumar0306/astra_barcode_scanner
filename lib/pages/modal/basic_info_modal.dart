@@ -1,12 +1,14 @@
 class ClassInfo {
   String className;
   int count;
+  String version;
   List<Boxes> boxes;
   List<Boxes> sets;
 
   ClassInfo({
     required this.className,
     required this.count,
+    required this.version,
     required this.boxes,
     required this.sets,
   });
@@ -21,12 +23,13 @@ class ClassInfo {
     if (setsInfo != null) {
       lcSets = setsInfo.map((e) => Boxes.parseResponse(e)).toList();
     }
-    return ClassInfo(className: data["CLASS_NAME"], count: data["COUNT"], boxes: lcBoxes, sets: lcSets);
+    return ClassInfo(className: data["CLASS_NAME"], count: data["COUNT"], version: data["VERSION"] , boxes: lcBoxes, sets: lcSets);
   }
 
   Map<String, dynamic> getMap() => {
         "CLASS_NAME": className,
         "COUNT": count,
+        "VERSION": version,
         "BOXES": boxes.map((e) => e.getMap()).toList(),
         "SETS": sets.map((e) => e.getMap()).toList(),
       };

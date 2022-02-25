@@ -18,7 +18,9 @@ class BarCodeService {
 
     int initialColum = 1;
     for (var i = 0; i < barInfo.classes.length; i++) {
-      sheet.getRangeByIndex(7, initialColum).setText("${barInfo.classes.elementAt(i).className} - ${barInfo.classes.elementAt(i).count}");
+      sheet
+          .getRangeByIndex(7, initialColum)
+          .setText("${barInfo.classes.elementAt(i).className} - ${barInfo.classes.elementAt(i).version} - ${barInfo.classes.elementAt(i).count}");
       final heading = sheet.getRangeByIndex(7, initialColum, 7, initialColum + 2);
       heading.merge();
       heading.cellStyle.hAlign = HAlignType.center;

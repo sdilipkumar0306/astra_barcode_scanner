@@ -35,8 +35,8 @@ class _BarCodesListviewState extends State<BarCodesListview> {
             },
             icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         centerTitle: true,
-        title:
-            Text("${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className} - ${barInfo.classes.elementAt(widget.selectedIndex).count}"),
+        title: Text(
+            "${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className} - ${barInfo.classes.elementAt(widget.selectedIndex).version} - ${barInfo.classes.elementAt(widget.selectedIndex).count}"),
       ),
       body: Stack(
         children: [
@@ -270,13 +270,19 @@ class _BarCodesListviewState extends State<BarCodesListview> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (barCodeController.text.trim().isNotEmpty && weightController.text.trim().isNotEmpty) {
+              if (barCodeController.text.trim().isNotEmpty) {
                 if (isBox) {
-                  Boxes res = Boxes(barCode: barCodeController.text, boxNumber: StaticInfo.boxCount, weight: double.parse(weightController.text.trim()));
+                  Boxes res = Boxes(
+                      barCode: barCodeController.text,
+                      boxNumber: StaticInfo.boxCount,
+                      weight: double.parse(weightController.text.trim().isEmpty ? "0" : weightController.text.trim()));
                   barInfo.classes.elementAt(widget.selectedIndex).boxes.add(res);
                   StaticInfo.boxCount++;
                 } else {
-                  Boxes res = Boxes(barCode: barCodeController.text, boxNumber: StaticInfo.setsCount, weight: double.parse(weightController.text.trim()));
+                  Boxes res = Boxes(
+                      barCode: barCodeController.text,
+                      boxNumber: StaticInfo.setsCount,
+                      weight: double.parse(weightController.text.trim().isEmpty ? "0" : weightController.text.trim()));
                   barInfo.classes.elementAt(widget.selectedIndex).sets.add(res);
                   StaticInfo.setsCount++;
                 }
