@@ -1,5 +1,6 @@
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'dart:io';
 
@@ -83,8 +84,8 @@ class BarCodeService {
 
     final List<int> bytes = workbook.saveAsStream();
     workbook.dispose();
-
-    final File file = File("/storage/emulated/0/Download/$fileName");
+    String fileLocation = "/storage/emulated/0/Download/$fileName";
+    final File file = File(fileLocation);
     bool isExist = await file.exists();
     if (!isExist) {
       await file.create();
@@ -92,6 +93,11 @@ class BarCodeService {
     await file.writeAsBytes(bytes, flush: true);
     SnackBar snackBar = SnackBar(
       content: Text("Downloaded as $fileName"),
+      action: SnackBarAction(
+          label: "Open",
+          onPressed: () {
+            OpenFile.open(fileLocation);
+          }),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
