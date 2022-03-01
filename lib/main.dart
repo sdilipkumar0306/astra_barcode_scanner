@@ -1,5 +1,5 @@
 import 'package:astra_bar_code_scanner/pages/ui/loader.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 
 void main() {
   runApp(const MyApp());
