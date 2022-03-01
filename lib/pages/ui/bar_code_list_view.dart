@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:astra_bar_code_scanner/pages/modal/basic_info_modal.dart';
 import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../modal/bar_code_modal.dart';
 
 class BarCodesListview extends StatefulWidget {
@@ -37,7 +35,8 @@ class _BarCodesListviewState extends State<BarCodesListview> {
             },
             icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         centerTitle: true,
-        title: Text("${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className}"),
+        title: Text(
+            "${barInfo.dcNo} - ${barInfo.classes.elementAt(widget.selectedIndex).className} - ${barInfo.classes.elementAt(widget.selectedIndex).version} - ${barInfo.classes.elementAt(widget.selectedIndex).count}"),
       ),
       body: Stack(
         children: [
@@ -71,6 +70,7 @@ class _BarCodesListviewState extends State<BarCodesListview> {
                             ),
                             trailing: IconButton(
                                 onPressed: () async {
+                                  reArangeBoxOrder(barInfo.classes.elementAt(widget.selectedIndex).boxes.elementAt(index).boxNumber);
                                   barInfo.classes.elementAt(widget.selectedIndex).boxes.removeAt(index);
                                   if (!mounted) return;
                                   setState(() {});
@@ -107,7 +107,9 @@ class _BarCodesListviewState extends State<BarCodesListview> {
                             ),
                             trailing: IconButton(
                                 onPressed: () async {
+                                  reArangeSetsOrder(barInfo.classes.elementAt(widget.selectedIndex).sets.elementAt(index).boxNumber);
                                   barInfo.classes.elementAt(widget.selectedIndex).sets.removeAt(index);
+
                                   if (!mounted) return;
                                   setState(() {});
                                   StaticInfo.saveData(barInfo);
@@ -147,6 +149,28 @@ class _BarCodesListviewState extends State<BarCodesListview> {
         ],
       ),
     );
+  }
+
+  void reArangeBoxOrder(int removedCount) {
+    for (var i = 0; i < barInfo.classes.length; i++) {
+      for (var j = 0; j < barInfo.classes.elementAt(i).boxes.length; j++) {
+        if (barInfo.classes.elementAt(i).boxes.elementAt(j).boxNumber > removedCount) {
+          barInfo.classes.elementAt(i).boxes.elementAt(j).boxNumber -= 1;
+        }
+      }
+    }
+    StaticInfo.boxCount -= 1;
+  }
+
+  void reArangeSetsOrder(int removedCount) {
+    for (var i = 0; i < barInfo.classes.length; i++) {
+      for (var j = 0; j < barInfo.classes.elementAt(i).sets.length; j++) {
+        if (barInfo.classes.elementAt(i).sets.elementAt(j).boxNumber > removedCount) {
+          barInfo.classes.elementAt(i).sets.elementAt(j).boxNumber -= 1;
+        }
+      }
+    }
+    StaticInfo.setsCount -= 1;
   }
 
   Future<void> getTextField() async {
@@ -246,13 +270,19 @@ class _BarCodesListviewState extends State<BarCodesListview> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (barCodeController.text.trim().isNotEmpty && weightController.text.trim().isNotEmpty) {
+              if (barCodeController.text.trim().isNotEmpty) {
                 if (isBox) {
-                  Boxes res = Boxes(barCode: barCodeController.text, boxNumber: StaticInfo.boxCount, weight: double.parse(weightController.text.trim()));
+                  Boxes res = Boxes(
+                      barCode: barCodeController.text,
+                      boxNumber: StaticInfo.boxCount,
+                      weight: double.parse(weightController.text.trim().isEmpty ? "0" : weightController.text.trim()));
                   barInfo.classes.elementAt(widget.selectedIndex).boxes.add(res);
                   StaticInfo.boxCount++;
                 } else {
-                  Boxes res = Boxes(barCode: barCodeController.text, boxNumber: StaticInfo.setsCount, weight: double.parse(weightController.text.trim()));
+                  Boxes res = Boxes(
+                      barCode: barCodeController.text,
+                      boxNumber: StaticInfo.setsCount,
+                      weight: double.parse(weightController.text.trim().isEmpty ? "0" : weightController.text.trim()));
                   barInfo.classes.elementAt(widget.selectedIndex).sets.add(res);
                   StaticInfo.setsCount++;
                 }

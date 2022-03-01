@@ -1,5 +1,6 @@
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'dart:io';
 
@@ -18,7 +19,9 @@ class BarCodeService {
 
     int initialColum = 1;
     for (var i = 0; i < barInfo.classes.length; i++) {
-      sheet.getRangeByIndex(7, initialColum).setText(barInfo.classes.elementAt(i).className);
+      sheet
+          .getRangeByIndex(7, initialColum)
+          .setText("${barInfo.classes.elementAt(i).className} - ${barInfo.classes.elementAt(i).version} - ${barInfo.classes.elementAt(i).count}");
       final heading = sheet.getRangeByIndex(7, initialColum, 7, initialColum + 2);
       heading.merge();
       heading.cellStyle.hAlign = HAlignType.center;
@@ -63,7 +66,7 @@ class BarCodeService {
     sheet.getRangeByIndex(3, 3).setNumber(totalBoxes.toDouble());
     sheet.getRangeByIndex(3, 1, 3, 2).merge();
     sheet.getRangeByIndex(3, 3, 3, 4).merge();
-    
+
     // setting total weight
     sheet.getRangeByIndex(4, 1).setText("Total Weight (Kg)");
     sheet.getRangeByIndex(4, 3).setNumber(totalWeight);
@@ -81,8 +84,8 @@ class BarCodeService {
 
     final List<int> bytes = workbook.saveAsStream();
     workbook.dispose();
-
-    final File file = File("/storage/emulated/0/Download/$fileName");
+    String fileLocation = "/storage/emulated/0/Download/$fileName";
+    final File file = File(fileLocation);
     bool isExist = await file.exists();
     if (!isExist) {
       await file.create();
@@ -90,6 +93,11 @@ class BarCodeService {
     await file.writeAsBytes(bytes, flush: true);
     SnackBar snackBar = SnackBar(
       content: Text("Downloaded as $fileName"),
+      action: SnackBarAction(
+          label: "Open",
+          onPressed: () {
+            OpenFile.open(fileLocation);
+          }),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }

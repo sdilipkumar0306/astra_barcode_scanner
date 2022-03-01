@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:astra_bar_code_scanner/pages/modal/bar_code_modal.dart';
 import 'package:astra_bar_code_scanner/pages/modal/static_info.dart';
 import 'package:astra_bar_code_scanner/pages/ui/bar_code_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../service.dart';
 import 'home_page.dart';
 
@@ -35,6 +32,8 @@ class _ClassesListState extends State<ClassesList> {
         leading: IconButton(
             onPressed: () async {
               SharedPreferences pref = await SharedPreferences.getInstance();
+              StaticInfo.boxCount = 1;
+              StaticInfo.setsCount = 1;
               pref.clear();
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
             },
@@ -56,7 +55,14 @@ class _ClassesListState extends State<ClassesList> {
           return ExpansionTile(
             key: Key(i.toString()),
             initiallyExpanded: i == selected,
-            title: Text(astraBarCode.classes.elementAt(i).className),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(astraBarCode.classes.elementAt(i).className),
+                Text(astraBarCode.classes.elementAt(i).version),
+                Text(astraBarCode.classes.elementAt(i).count.toString()),
+              ],
+            ),
             children: productExpandAbleListBuilder(i),
             onExpansionChanged: ((newState) {
               if (newState) {
